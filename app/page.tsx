@@ -14,7 +14,9 @@ const PETALS = Array.from({ length: 14 }, (_, i) => ({
 export default function Home() {
   const [step, setStep] = useState<"form" | "success" | "declined">("form");
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: "", guests: "1", message: "" });
+  const [guests, setGuests] = useState(1);
+  const [names, setNames] = useState<string[]>([""]); // un champ par personne
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -23,15 +25,34 @@ export default function Home() {
     document.head.appendChild(style);
   }, []);
 
+  function handleGuestCount(count: number) {
+    setGuests(count);
+    setNames((prev) => {
+      const next = [...prev];
+      while (next.length < count) next.push("");
+      return next.slice(0, count);
+    });
+  }
+
+  function updateName(i: number, val: string) {
+    setNames((prev) => { const n = [...prev]; n[i] = val; return n; });
+  }
+
   async function handleSubmit(coming: boolean) {
-    if (!form.name.trim()) { setError("Merci d'indiquer votre prénom 🌸"); return; }
+    if (!names[0]?.trim()) { setError("Merci d'indiquer votre prénom 🌸"); return; }
     setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, coming }),
+        body: JSON.stringify({
+          name: names[0].trim(),
+          guests,
+          guestNames: names.slice(1).filter(n => n.trim()),
+          message,
+          coming,
+        }),
       });
       if (!res.ok) throw new Error();
       setStep(coming ? "success" : "declined");
@@ -60,16 +81,11 @@ export default function Home() {
         />
       ))}
 
-      <div
-        className="absolute top-8 right-8 w-48 h-48 rounded-full opacity-20 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #f9a8d4, transparent)" }}
-      />
-      <div
-        className="absolute bottom-8 left-8 w-36 h-36 rounded-full opacity-15 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #fcd34d, transparent)" }}
-      />
+      <div className="absolute top-8 right-8 w-48 h-48 rounded-full opacity-20 pointer-events-none"
+        style={{ background: "radial-gradient(circle, #f9a8d4, transparent)" }} />
+      <div className="absolute bottom-8 left-8 w-36 h-36 rounded-full opacity-15 pointer-events-none"
+        style={{ background: "radial-gradient(circle, #fcd34d, transparent)" }} />
 
-      {/* Card */}
       <div
         className="relative z-10 w-full max-w-sm"
         style={{
@@ -120,44 +136,57 @@ export default function Home() {
 
             {/* Form */}
             <div className="space-y-2.5">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-                  Prénom & nom *
-                </label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-xl text-gray-700 text-sm outline-none transition-all"
-                  style={{ background: "#fff", border: "2px solid #fecdd3" }}
-                  onFocus={(e) => (e.target.style.borderColor = "#f43f5e")}
-                  onBlur={(e) => (e.target.style.borderColor = "#fecdd3")}
-                />
-              </div>
 
+              {/* Nombre de personnes */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
                   Nombre de personnes
                 </label>
-                <select
-                  value={form.guests}
-                  onChange={(e) => setForm({ ...form, guests: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-xl text-gray-700 text-sm outline-none appearance-none cursor-pointer"
-                  style={{ background: "#fff", border: "2px solid #fecdd3" }}
-                >
+                <div className="flex gap-1.5">
                   {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>{n} {n === 1 ? "personne" : "personnes"}</option>
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => handleGuestCount(n)}
+                      className="flex-1 py-2 rounded-xl text-sm font-bold transition-all"
+                      style={{
+                        background: guests === n ? "linear-gradient(135deg, #f43f5e, #e11d48)" : "#fff",
+                        color: guests === n ? "#fff" : "#9ca3af",
+                        border: guests === n ? "2px solid transparent" : "2px solid #e5e7eb",
+                      }}
+                    >
+                      {n}
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
 
+              {/* Un champ par personne */}
+              {names.map((n, i) => (
+                <div key={i}>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+                    {i === 0 ? "Votre prénom & nom *" : `Personne ${i + 1}`}
+                  </label>
+                  <input
+                    type="text"
+                    value={n}
+                    onChange={(e) => updateName(i, e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl text-gray-700 text-sm outline-none transition-all"
+                    style={{ background: "#fff", border: "2px solid #fecdd3" }}
+                    onFocus={(e) => (e.target.style.borderColor = "#f43f5e")}
+                    onBlur={(e) => (e.target.style.borderColor = "#fecdd3")}
+                  />
+                </div>
+              ))}
+
+              {/* Message */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
                   Un mot ✨ (optionnel)
                 </label>
                 <textarea
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   placeholder="Un petit message..."
                   rows={2}
                   className="w-full px-3 py-2.5 rounded-xl text-gray-700 text-sm outline-none resize-none transition-all"
@@ -200,14 +229,12 @@ export default function Home() {
             <div>
               <h2 className="font-display text-2xl font-bold mb-1" style={{ color: "#881337" }}>Magnifique !</h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Merci <strong>{form.name}</strong> ! Votre présence
-                {parseInt(form.guests) > 1 ? ` et celle de vos ${parseInt(form.guests) - 1} accompagnant(s)` : ""} est notée avec bonheur. 🌸
+                Merci <strong>{names[0]}</strong> ! Votre présence
+                {guests > 1 ? ` et celle de vos ${guests - 1} accompagnant(s)` : ""} est notée avec bonheur. 🌸
               </p>
             </div>
-            <div
-              className="rounded-xl p-3 text-xs text-center"
-              style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", border: "1px solid #fecdd3" }}
-            >
+            <div className="rounded-xl p-3 text-xs text-center"
+              style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", border: "1px solid #fecdd3" }}>
               <p className="text-gray-600">Nous avons hâte de vous retrouver pour ce moment inoubliable !</p>
             </div>
             <div className="text-2xl space-x-2">🌷✨🥂</div>
@@ -223,10 +250,8 @@ export default function Home() {
                 Nous sommes tristes de ne pas pouvoir vous compter parmi nous. Merci d&apos;avoir répondu. 💕
               </p>
             </div>
-            <div
-              className="rounded-xl p-3 text-xs"
-              style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", border: "1px solid #fecdd3" }}
-            >
+            <div className="rounded-xl p-3 text-xs"
+              style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", border: "1px solid #fecdd3" }}>
               <p className="text-gray-600 text-center">Vous serez avec nous en pensée pour cette belle célébration.</p>
             </div>
           </div>
