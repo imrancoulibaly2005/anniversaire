@@ -86,6 +86,13 @@ export default function Home() {
       <div className="absolute bottom-8 left-8 w-36 h-36 rounded-full opacity-15 pointer-events-none"
         style={{ background: "radial-gradient(circle, #fcd34d, transparent)" }} />
 
+      <a
+        href="/admin"
+        className="absolute bottom-4 right-4 z-10 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        ⚙️
+      </a>
+
       <div
         className="relative z-10 w-full max-w-sm"
         style={{
