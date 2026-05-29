@@ -143,14 +143,14 @@ export default function Home() {
                 <span className="text-lg">📍</span>
                 <div>
                   <span className="font-semibold text-gray-700">Lieu — </span>
-                  <span className="text-gray-600">à compléter par l'organisateur</span>
+                  <span className="text-gray-600">Salle polyvalente de l&apos;Armée de l&apos;Air</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-lg">🕐</span>
                 <div>
                   <span className="font-semibold text-gray-700">Heure — </span>
-                  <span className="text-gray-600">à compléter par l'organisateur</span>
+                  <span className="text-gray-600">20h00</span>
                 </div>
               </div>
             </div>
