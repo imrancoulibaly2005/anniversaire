@@ -15,7 +15,7 @@ export default function Home() {
   const [step, setStep] = useState<"form" | "success" | "declined">("form");
   const [loading, setLoading] = useState(false);
   const [guests, setGuests] = useState(1);
-  const [names, setNames] = useState<string[]>([""]); // un champ par personne
+  const [names, setNames] = useState<string[]>([""]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -39,7 +39,7 @@ export default function Home() {
   }
 
   async function handleSubmit(coming: boolean) {
-    if (!names[0]?.trim()) { setError("Merci d'indiquer votre prénom 🌸"); return; }
+    if (!names[0]?.trim()) { setError("Merci d'indiquer ton prénom 🌸"); return; }
     setError("");
     setLoading(true);
     try {
@@ -101,9 +101,14 @@ export default function Home() {
           <div className="space-y-3">
             {/* Header */}
             <div className="text-center space-y-1">
-              <div className="text-3xl">🌸</div>
+              <img
+                src="/logo.png"
+                alt="50 ans"
+                className="mx-auto"
+                style={{ width: "120px", height: "120px", objectFit: "contain" }}
+              />
               <p className="text-xs uppercase tracking-[0.25em] font-bold" style={{ color: "#f43f5e" }}>
-                Vous êtes invité·e à
+                Tu es invité·e à
               </p>
               <h1 className="font-display text-2xl font-bold leading-tight" style={{ color: "#881337" }}>
                 Un anniversaire{" "}
@@ -111,7 +116,7 @@ export default function Home() {
               </h1>
               <div className="mx-auto h-px w-20" style={{ background: "linear-gradient(to right, transparent, #f9a8d4, transparent)" }} />
               <p className="text-gray-500 text-xs leading-relaxed">
-                Votre présence nous ferait extrêmement plaisir.
+                Ta présence nous ferait extrêmement plaisir.
               </p>
             </div>
 
@@ -165,7 +170,7 @@ export default function Home() {
               {names.map((n, i) => (
                 <div key={i}>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-                    {i === 0 ? "Votre prénom & nom *" : `Personne ${i + 1}`}
+                    {i === 0 ? "Ton prénom & nom *" : `Personne ${i + 1}`}
                   </label>
                   <input
                     type="text"
@@ -229,13 +234,13 @@ export default function Home() {
             <div>
               <h2 className="font-display text-2xl font-bold mb-1" style={{ color: "#881337" }}>Magnifique !</h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Merci <strong>{names[0]}</strong> ! Votre présence
-                {guests > 1 ? ` et celle de vos ${guests - 1} accompagnant(s)` : ""} est notée avec bonheur. 🌸
+                Merci <strong>{names[0]}</strong> ! Ta présence
+                {guests === 2 ? " et celle de ton accompagnant" : guests > 2 ? ` et celle de tes ${guests - 1} accompagnants` : ""} est notée avec bonheur. 🌸
               </p>
             </div>
             <div className="rounded-xl p-3 text-xs text-center"
               style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", border: "1px solid #fecdd3" }}>
-              <p className="text-gray-600">Nous avons hâte de vous retrouver pour ce moment inoubliable !</p>
+              <p className="text-gray-600">On a hâte de te retrouver pour ce moment inoubliable !</p>
             </div>
             <div className="text-2xl space-x-2">🌷✨🥂</div>
           </div>
@@ -247,12 +252,12 @@ export default function Home() {
             <div>
               <h2 className="font-display text-2xl font-bold mb-1" style={{ color: "#881337" }}>C&apos;est noté</h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Nous sommes tristes de ne pas pouvoir vous compter parmi nous. Merci d&apos;avoir répondu. 💕
+                On est tristes de ne pas pouvoir t&apos;avoir parmi nous. Merci d&apos;avoir répondu. 💕
               </p>
             </div>
             <div className="rounded-xl p-3 text-xs"
               style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", border: "1px solid #fecdd3" }}>
-              <p className="text-gray-600 text-center">Vous serez avec nous en pensée pour cette belle célébration.</p>
+              <p className="text-gray-600 text-center">Tu seras avec nous en pensée pour cette belle célébration.</p>
             </div>
           </div>
         )}
