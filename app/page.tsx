@@ -101,12 +101,7 @@ export default function Home() {
           <div className="space-y-3">
             {/* Header */}
             <div className="text-center space-y-1">
-              <img
-                src="/logo.png"
-                alt="50 ans"
-                className="mx-auto"
-                style={{ width: "120px", height: "120px", objectFit: "contain" }}
-              />
+              <div className="text-3xl">🌸</div>
               <p className="text-xs uppercase tracking-[0.25em] font-bold" style={{ color: "#f43f5e" }}>
                 Tu es invité·e à
               </p>
