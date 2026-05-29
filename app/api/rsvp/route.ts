@@ -14,6 +14,7 @@ async function ensureTable() {
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       guests INTEGER NOT NULL DEFAULT 1,
+      guest_names TEXT,
       coming BOOLEAN NOT NULL,
       message TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
@@ -23,7 +24,7 @@ async function ensureTable() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, guests, coming, message } = await req.json();
+    const { name, guests, guestNames, coming, message } = await req.json();
     if (!name?.trim()) {
       return NextResponse.json({ error: "Nom requis" }, { status: 400 });
     }
@@ -31,9 +32,19 @@ export async function POST(req: NextRequest) {
     await ensureTable();
     const sql = getDb();
 
+    const cleanGuests = Array.isArray(guestNames)
+      ? guestNames.filter((n: string) => typeof n === "string" && n.trim()).map((n: string) => n.trim())
+      : [];
+
     await sql`
-      INSERT INTO rsvps (name, guests, coming, message)
-      VALUES (${name.trim()}, ${parseInt(guests) || 1}, ${!!coming}, ${message?.trim() || null})
+      INSERT INTO rsvps (name, guests, guest_names, coming, message)
+      VALUES (
+        ${name.trim()},
+        ${parseInt(guests) || 1},
+        ${cleanGuests.length > 0 ? JSON.stringify(cleanGuests) : null},
+        ${!!coming},
+        ${message?.trim() || null}
+      )
     `;
 
     return NextResponse.json({ ok: true });
@@ -52,10 +63,14 @@ export async function GET(req: NextRequest) {
   try {
     await ensureTable();
     const sql = getDb();
-    const rows = await sql`
-      SELECT * FROM rsvps ORDER BY created_at DESC
-    `;
-    return NextResponse.json({ rsvps: rows });
+    const rows = await sql`SELECT * FROM rsvps ORDER BY created_at DESC`;
+
+    const rsvps = rows.map((r) => ({
+      ...r,
+      guest_names: r.guest_names ? JSON.parse(r.guest_names) : [],
+    }));
+
+    return NextResponse.json({ rsvps });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
