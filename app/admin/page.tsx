@@ -55,34 +55,118 @@ export default function AdminPage() {
           #print-zone {
             position: fixed;
             inset: 0;
-            padding: 40px;
             background: white;
             font-family: Georgia, serif;
+            display: flex;
+            flex-direction: column;
           }
-          #print-zone h1 { font-size: 22px; color: #881337; margin-bottom: 4px; }
-          #print-zone p { font-size: 12px; color: #6b7280; margin-bottom: 20px; }
-          #print-zone ul { columns: 2; column-gap: 40px; list-style: none; padding: 0; }
-          #print-zone li {
-            font-size: 13px;
-            padding: 6px 0;
+
+          /* Bandeau haut */
+          #print-header {
+            background: linear-gradient(135deg, #881337, #e11d48);
+            color: white;
+            padding: 28px 40px 20px;
+            text-align: center;
+          }
+          #print-header .rose { font-size: 28px; margin-bottom: 6px; }
+          #print-header h1 {
+            font-size: 26px;
+            font-style: italic;
+            font-weight: bold;
+            margin: 0 0 4px;
+            letter-spacing: 1px;
+          }
+          #print-header .sub {
+            font-size: 11px;
+            opacity: 0.85;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+          }
+
+          /* Infos event */
+          #print-info {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 14px 40px;
+            background: #fff0f5;
+            border-bottom: 2px solid #fecdd3;
+            font-family: Arial, sans-serif;
+          }
+          #print-info span { font-size: 11px; color: #881337; font-weight: bold; }
+
+          /* Corps */
+          #print-body { padding: 24px 40px; flex: 1; }
+          #print-body .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f43f5e;
+          }
+          #print-body .list-header h2 {
+            font-size: 14px;
+            color: #881337;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+          }
+          #print-body .list-header .total {
+            background: #e11d48;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 20px;
+          }
+          #print-body ul {
+            columns: 2;
+            column-gap: 32px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+          }
+          #print-body li {
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            color: #374151;
+            padding: 7px 4px;
             border-bottom: 1px solid #fce7f3;
             break-inside: avoid;
             display: flex;
             align-items: center;
             gap: 8px;
           }
-          #print-zone .num {
+          #print-body li:nth-child(odd) { background: #fff8f9; }
+          #print-body .num {
             background: #e11d48;
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             flex-shrink: 0;
+          }
+
+          /* Pied de page */
+          #print-footer {
+            text-align: center;
+            padding: 12px 40px;
+            background: #fff0f5;
+            border-top: 1px solid #fecdd3;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #9ca3af;
           }
         }
       `}</style>
@@ -193,18 +277,35 @@ export default function AdminPage() {
               {/* Liste alphabétique */}
               {view === "liste" && (
                 <>
-                  {/* Zone d'impression cachée, optimisée PDF */}
+                  {/* Zone d'impression — cachée à l'écran, belle en PDF */}
                   <div id="print-zone" style={{ display: "none" }}>
-                    <h1>Liste des présents — Anniversaire</h1>
-                    <p>6 juin 2026 · Salle polyvalente de l&apos;Armée de l&apos;Air · {allNames.length} personnes</p>
-                    <ul>
-                      {allNames.map((name, i) => (
-                        <li key={i}>
-                          <span className="num">{i + 1}</span>
-                          {name}
-                        </li>
-                      ))}
-                    </ul>
+                    <div id="print-header">
+                      <div className="rose">🌸</div>
+                      <h1>Anniversaire — 50 Ans</h1>
+                      <div className="sub">Liste officielle des présents</div>
+                    </div>
+                    <div id="print-info">
+                      <span>📅 Samedi 6 juin 2026</span>
+                      <span>📍 Salle polyvalente de l&apos;Armée de l&apos;Air</span>
+                      <span>🕐 20h00</span>
+                    </div>
+                    <div id="print-body">
+                      <div className="list-header">
+                        <h2>Invités confirmés</h2>
+                        <span className="total">{allNames.length} personnes</span>
+                      </div>
+                      <ul>
+                        {allNames.map((name, i) => (
+                          <li key={i}>
+                            <span className="num">{i + 1}</span>
+                            {name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div id="print-footer">
+                      Généré le {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                    </div>
                   </div>
 
                   <div
