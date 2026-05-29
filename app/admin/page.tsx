@@ -59,6 +59,7 @@ export default function AdminPage() {
             font-family: Georgia, serif;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
           }
 
           /* Bandeau haut */
@@ -279,6 +280,40 @@ export default function AdminPage() {
                 <>
                   {/* Zone d'impression — cachée à l'écran, belle en PDF */}
                   <div id="print-zone" style={{ display: "none" }}>
+
+                    {/* Branche haut droite */}
+                    <svg style={{ position: "absolute", top: 0, right: 0, width: 280, height: 280, opacity: 0.15, pointerEvents: "none" }} viewBox="0 0 320 320" fill="none">
+                      <path d="M320 0 C280 40, 240 60, 200 90 C170 115, 150 140, 120 160 C95 178, 70 185, 50 200" stroke="#7c3435" strokeWidth="5" strokeLinecap="round"/>
+                      <path d="M200 90 C220 70, 250 55, 270 30" stroke="#7c3435" strokeWidth="3.5" strokeLinecap="round"/>
+                      <path d="M200 90 C185 75, 195 55, 210 40" stroke="#7c3435" strokeWidth="2.5" strokeLinecap="round"/>
+                      <path d="M150 140 C130 125, 125 105, 140 85" stroke="#7c3435" strokeWidth="3" strokeLinecap="round"/>
+                      <path d="M120 160 C100 148, 90 130, 105 112" stroke="#7c3435" strokeWidth="2.5" strokeLinecap="round"/>
+                      {[[270,28],[252,48],[210,38],[195,55],[172,52],[148,83],[138,64],[118,110],[102,110],[200,88],[220,68]].map(([cx,cy],i) => (
+                        <g key={i}>
+                          {[0,72,144,216,288].map((angle,j) => (
+                            <ellipse key={j} cx={cx+7*Math.cos(angle*Math.PI/180)} cy={cy+7*Math.sin(angle*Math.PI/180)} rx="5" ry="3.5" fill={i%2===0?"#f9a8d4":"#fbcfe8"} transform={`rotate(${angle},${cx+7*Math.cos(angle*Math.PI/180)},${cy+7*Math.sin(angle*Math.PI/180)})`}/>
+                          ))}
+                          <circle cx={cx} cy={cy} r="2.5" fill="#fbbf24"/>
+                        </g>
+                      ))}
+                    </svg>
+
+                    {/* Branche bas gauche */}
+                    <svg style={{ position: "absolute", bottom: 0, left: 0, width: 250, height: 250, opacity: 0.15, pointerEvents: "none", transform: "rotate(180deg)" }} viewBox="0 0 280 280" fill="none">
+                      <path d="M280 280 C240 240, 200 220, 160 190 C130 168, 110 145, 80 125 C55 108, 30 100, 10 80" stroke="#7c3435" strokeWidth="5" strokeLinecap="round"/>
+                      <path d="M160 190 C180 210, 210 225, 230 250" stroke="#7c3435" strokeWidth="3.5" strokeLinecap="round"/>
+                      <path d="M110 145 C90 160, 85 180, 100 200" stroke="#7c3435" strokeWidth="3" strokeLinecap="round"/>
+                      <path d="M80 125 C60 138, 50 158, 65 175" stroke="#7c3435" strokeWidth="2.5" strokeLinecap="round"/>
+                      {[[228,248],[210,228],[178,210],[158,188],[138,168],[112,143],[95,160],[88,178],[78,123],[58,136],[12,82]].map(([cx,cy],i) => (
+                        <g key={i}>
+                          {[0,72,144,216,288].map((angle,j) => (
+                            <ellipse key={j} cx={cx+7*Math.cos(angle*Math.PI/180)} cy={cy+7*Math.sin(angle*Math.PI/180)} rx="5" ry="3.5" fill={i%2===0?"#fda4af":"#f9a8d4"} transform={`rotate(${angle},${cx+7*Math.cos(angle*Math.PI/180)},${cy+7*Math.sin(angle*Math.PI/180)})`}/>
+                          ))}
+                          <circle cx={cx} cy={cy} r="2.5" fill="#fbbf24"/>
+                        </g>
+                      ))}
+                    </svg>
+
                     <div id="print-header">
                       <div className="rose">🌸</div>
                       <h1>Anniversaire — 50 Ans</h1>
