@@ -155,6 +155,11 @@ export default function Home() {
                 Un anniversaire{" "}
                 <span className="italic" style={{ color: "#e11d48" }}>très spécial</span>
               </h1>
+              <p className="font-display text-sm font-semibold leading-snug" style={{ color: "#be123c" }}>
+                Fofana Tielema Marietou
+                <br />
+                <span className="font-normal italic text-xs" style={{ color: "#9f1239" }}>épse Coulibaly Schuber</span>
+              </p>
               <div className="mx-auto h-px w-20" style={{ background: "linear-gradient(to right, transparent, #f9a8d4, transparent)" }} />
               <p className="text-gray-500 text-xs leading-relaxed">
                 Ta présence nous ferait extrêmement plaisir.
