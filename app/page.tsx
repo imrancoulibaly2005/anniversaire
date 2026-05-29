@@ -88,7 +88,7 @@ export default function Home() {
 
       <a
         href="/admin"
-        className="absolute bottom-4 right-4 z-10 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        className="fixed bottom-4 right-4 z-50 text-xs text-gray-400 hover:text-gray-600 transition-colors"
       >
         ⚙️
       </a>
