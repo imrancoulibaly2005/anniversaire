@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen relative overflow-hidden flex items-center justify-center px-3 py-8 sm:py-4"
+      className="min-h-screen relative overflow-x-hidden flex items-center justify-center px-3 py-8"
       style={{ background: "linear-gradient(135deg, #fff0f5 0%, #fce7f3 40%, #fdf2f8 100%)" }}
     >
       {/* Branche cerisier haut droite */}
@@ -254,7 +254,7 @@ export default function Home() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col xs:flex-row gap-2 pt-1">
+            <div className="flex flex-col sm:flex-row gap-2 pt-1">
               <button
                 onClick={() => handleSubmit(true)}
                 disabled={loading}
