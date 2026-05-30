@@ -12,7 +12,7 @@ type RSVP = {
   created_at: string;
 };
 
-type View = "dashboard" | "liste";
+type View = "dashboard" | "liste" | "messages";
 
 export default function AdminPage() {
   const [key, setKey] = useState("");
@@ -40,6 +40,8 @@ export default function AdminPage() {
   const coming = rsvps?.filter((r) => r.coming) ?? [];
   const notComing = rsvps?.filter((r) => !r.coming) ?? [];
   const totalGuests = coming.reduce((s, r) => s + r.guests, 0);
+
+  const withMessages = rsvps?.filter((r) => r.message?.trim()) ?? [];
 
   const allNames: string[] = coming
     .flatMap((r) => [r.name, ...(r.guest_names ?? [])])
@@ -170,6 +172,113 @@ export default function AdminPage() {
             color: #9ca3af;
           }
         }
+
+        /* ===== IMPRESSION MESSAGES ===== */
+        @media print {
+          #print-messages-zone, #print-messages-zone * { visibility: visible !important; }
+          #print-messages-zone {
+            position: fixed;
+            inset: 0;
+            background: white;
+            font-family: Georgia, serif;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          }
+          #pm-header {
+            background: linear-gradient(135deg, #881337, #e11d48, #f43f5e);
+            color: white;
+            padding: 32px 48px 24px;
+            text-align: center;
+            position: relative;
+          }
+          #pm-header .pm-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+          #pm-header h1 {
+            font-size: 30px;
+            font-style: italic;
+            font-weight: bold;
+            margin: 0 0 6px;
+            letter-spacing: 1.5px;
+          }
+          #pm-header .pm-sub {
+            font-size: 11px;
+            opacity: 0.8;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+          }
+          #pm-header .pm-ligne {
+            margin: 12px auto 0;
+            width: 60px;
+            height: 1px;
+            background: rgba(255,255,255,0.5);
+          }
+          #pm-info {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 12px 40px;
+            background: #fff0f5;
+            border-bottom: 2px solid #fecdd3;
+            font-family: Arial, sans-serif;
+          }
+          #pm-info span { font-size: 11px; color: #881337; font-weight: bold; }
+          #pm-body {
+            flex: 1;
+            padding: 28px 48px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-content: start;
+          }
+          .pm-card {
+            border: 1.5px solid #fecdd3;
+            border-radius: 12px;
+            padding: 16px 18px;
+            background: #fffbfc;
+            position: relative;
+            break-inside: avoid;
+          }
+          .pm-card::before {
+            content: "\201C";
+            font-size: 52px;
+            color: #fda4af;
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            font-family: Georgia, serif;
+            line-height: 1;
+          }
+          .pm-card .pm-msg {
+            font-size: 11.5px;
+            color: #374151;
+            font-style: italic;
+            line-height: 1.7;
+            margin-top: 10px;
+            padding-top: 4px;
+          }
+          .pm-card .pm-name {
+            margin-top: 10px;
+            font-size: 10px;
+            font-family: Arial, sans-serif;
+            font-style: normal;
+            font-weight: bold;
+            color: #e11d48;
+            text-align: right;
+            letter-spacing: 0.5px;
+          }
+          .pm-card .pm-name::before { content: "— "; }
+          #pm-footer {
+            text-align: center;
+            padding: 12px 40px;
+            background: #fff0f5;
+            border-top: 1px solid #fecdd3;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #9ca3af;
+          }
+        }
       `}</style>
 
       <main
@@ -225,18 +334,22 @@ export default function AdminPage() {
             <>
               {/* Onglets */}
               <div className="flex gap-2">
-                {(["dashboard", "liste"] as View[]).map((v) => (
+                {([
+                  { id: "dashboard", label: `📊 Bord` },
+                  { id: "liste",     label: `📋 Liste (${allNames.length})` },
+                  { id: "messages",  label: `💌 Messages (${withMessages.length})` },
+                ] as { id: View; label: string }[]).map((v) => (
                   <button
-                    key={v}
-                    onClick={() => setView(v)}
+                    key={v.id}
+                    onClick={() => setView(v.id)}
                     className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
                     style={{
-                      background: view === v ? "linear-gradient(135deg, #f43f5e, #e11d48)" : "rgba(255,255,255,0.8)",
-                      color: view === v ? "#fff" : "#9ca3af",
-                      border: view === v ? "2px solid transparent" : "2px solid #e5e7eb",
+                      background: view === v.id ? "linear-gradient(135deg, #f43f5e, #e11d48)" : "rgba(255,255,255,0.8)",
+                      color: view === v.id ? "#fff" : "#9ca3af",
+                      border: view === v.id ? "2px solid transparent" : "2px solid #e5e7eb",
                     }}
                   >
-                    {v === "dashboard" ? `📊 Tableau de bord` : `📋 Liste (${allNames.length})`}
+                    {v.label}
                   </button>
                 ))}
               </div>
@@ -391,6 +504,136 @@ export default function AdminPage() {
                 </>
               )}
 
+              {/* ===== VUE MESSAGES ===== */}
+              {view === "messages" && (
+                <>
+                  {/* Zone impression messages — cachée à l'écran */}
+                  <div id="print-messages-zone" style={{ display: "none" }}>
+                    {/* Déco haut droite */}
+                    <svg style={{ position: "absolute", top: 0, right: 0, width: 260, height: 260, opacity: 0.13, pointerEvents: "none" }} viewBox="0 0 320 320" fill="none">
+                      <path d="M320 0 C280 40, 240 60, 200 90 C170 115, 150 140, 120 160 C95 178, 70 185, 50 200" stroke="#7c3435" strokeWidth="5" strokeLinecap="round"/>
+                      <path d="M200 90 C220 70, 250 55, 270 30" stroke="#7c3435" strokeWidth="3.5" strokeLinecap="round"/>
+                      <path d="M150 140 C130 125, 125 105, 140 85" stroke="#7c3435" strokeWidth="3" strokeLinecap="round"/>
+                      {[[270,28],[252,48],[210,38],[195,55],[172,52],[148,83],[138,64],[200,88],[220,68]].map(([cx,cy],i) => (
+                        <g key={i}>
+                          {[0,72,144,216,288].map((angle,j) => (
+                            <ellipse key={j} cx={cx+7*Math.cos(angle*Math.PI/180)} cy={cy+7*Math.sin(angle*Math.PI/180)} rx="5" ry="3.5" fill={i%2===0?"#f9a8d4":"#fbcfe8"} transform={`rotate(${angle},${cx+7*Math.cos(angle*Math.PI/180)},${cy+7*Math.sin(angle*Math.PI/180)})`}/>
+                          ))}
+                          <circle cx={cx} cy={cy} r="2.5" fill="#fbbf24"/>
+                        </g>
+                      ))}
+                    </svg>
+                    {/* Déco bas gauche */}
+                    <svg style={{ position: "absolute", bottom: 0, left: 0, width: 230, height: 230, opacity: 0.13, pointerEvents: "none", transform: "rotate(180deg)" }} viewBox="0 0 280 280" fill="none">
+                      <path d="M280 280 C240 240, 200 220, 160 190 C130 168, 110 145, 80 125 C55 108, 30 100, 10 80" stroke="#7c3435" strokeWidth="5" strokeLinecap="round"/>
+                      <path d="M160 190 C180 210, 210 225, 230 250" stroke="#7c3435" strokeWidth="3.5" strokeLinecap="round"/>
+                      <path d="M110 145 C90 160, 85 180, 100 200" stroke="#7c3435" strokeWidth="3" strokeLinecap="round"/>
+                      {[[228,248],[210,228],[178,210],[158,188],[138,168],[112,143],[88,178],[78,123],[12,82]].map(([cx,cy],i) => (
+                        <g key={i}>
+                          {[0,72,144,216,288].map((angle,j) => (
+                            <ellipse key={j} cx={cx+7*Math.cos(angle*Math.PI/180)} cy={cy+7*Math.sin(angle*Math.PI/180)} rx="5" ry="3.5" fill={i%2===0?"#fda4af":"#f9a8d4"} transform={`rotate(${angle},${cx+7*Math.cos(angle*Math.PI/180)},${cy+7*Math.sin(angle*Math.PI/180)})`}/>
+                          ))}
+                          <circle cx={cx} cy={cy} r="2.5" fill="#fbbf24"/>
+                        </g>
+                      ))}
+                    </svg>
+
+                    <div id="pm-header">
+                      <span className="pm-icon">💌</span>
+                      <h1>Mots d&apos;amour</h1>
+                      <div className="pm-sub">Les messages du cœur — Anniversaire 2026</div>
+                      <div className="pm-ligne" />
+                    </div>
+                    <div id="pm-info">
+                      <span>📅 Samedi 6 juin 2026</span>
+                      <span>📍 Salle polyvalente de l&apos;Armée de l&apos;Air</span>
+                      <span>💌 {withMessages.length} message{withMessages.length > 1 ? "s" : ""}</span>
+                    </div>
+                    <div id="pm-body">
+                      {withMessages.map((r) => (
+                        <div key={r.id} className="pm-card">
+                          <div className="pm-msg">{r.message}</div>
+                          <div className="pm-name">{r.name}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div id="pm-footer">
+                      Généré le {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} &nbsp;·&nbsp; Avec amour 🌸
+                    </div>
+                  </div>
+
+                  {/* Affichage écran */}
+                  <div
+                    className="rounded-2xl overflow-hidden"
+                    style={{ background: "rgba(255,255,255,0.9)", border: "1px solid #fecdd3" }}
+                  >
+                    {/* Header */}
+                    <div
+                      className="px-4 py-4 flex items-center justify-between gap-2"
+                      style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)", borderBottom: "1px solid #fecdd3" }}
+                    >
+                      <div className="min-w-0">
+                        <h2 className="font-bold text-sm flex items-center gap-1.5" style={{ color: "#881337" }}>
+                          💌 Mots d&apos;amour
+                        </h2>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {withMessages.length} message{withMessages.length > 1 ? "s" : ""} reçu{withMessages.length > 1 ? "s" : ""}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const zone = document.getElementById("print-messages-zone");
+                          if (zone) zone.style.display = "block";
+                          window.print();
+                          setTimeout(() => { if (zone) zone.style.display = "none"; }, 500);
+                        }}
+                        className="shrink-0 text-xs font-bold px-3 py-2 rounded-xl text-white"
+                        style={{ background: "linear-gradient(135deg, #9333ea, #7c3aed)" }}
+                      >
+                        ⬇ PDF
+                      </button>
+                    </div>
+
+                    {withMessages.length === 0 && (
+                      <div className="px-4 py-10 text-center">
+                        <p className="text-3xl mb-2">💬</p>
+                        <p className="text-gray-400 text-sm">Aucun message pour l&apos;instant</p>
+                      </div>
+                    )}
+
+                    <div className="divide-y divide-rose-50">
+                      {withMessages.map((r) => (
+                        <div key={r.id} className="px-4 py-4">
+                          <div className="flex items-start gap-3">
+                            {/* Guillemet déco */}
+                            <span
+                              className="text-3xl leading-none shrink-0 mt-0.5 font-serif"
+                              style={{ color: "#fda4af" }}
+                            >
+                              &ldquo;
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-gray-700 text-sm italic leading-relaxed">{r.message}</p>
+                              <div className="flex items-center justify-between mt-2">
+                                <span
+                                  className="text-xs font-bold"
+                                  style={{ color: "#e11d48" }}
+                                >
+                                  — {r.name}
+                                </span>
+                                <span className="text-xs text-gray-400">
+                                  {new Date(r.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
               <button
                 onClick={() => { setRsvps(null); setKey(""); setView("dashboard"); }}
                 className="w-full py-3 rounded-xl text-sm text-gray-500 font-medium"
@@ -439,7 +682,7 @@ function RsvpCard({ r }: { r: RSVP }) {
             </div>
           )}
           {r.message && (
-            <p className="text-xs text-gray-400 mt-0.5 italic truncate">&ldquo;{r.message}&rdquo;</p>
+            <p className="text-xs text-gray-400 mt-1 italic leading-relaxed">&ldquo;{r.message}&rdquo;</p>
           )}
         </div>
         <div className="text-right shrink-0">

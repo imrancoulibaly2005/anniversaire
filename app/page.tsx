@@ -194,7 +194,7 @@ export default function Home() {
                   Nombre de personnes
                 </label>
                 <div className="flex gap-1.5">
-                  {[1, 2, 3, 4, 5].map((n) => (
+                  {[1, 2, 3].map((n) => (
                     <button
                       key={n}
                       type="button"
@@ -281,7 +281,7 @@ export default function Home() {
               <h2 className="font-display text-2xl font-bold mb-1" style={{ color: "#881337" }}>Magnifique !</h2>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Merci <strong>{names[0]}</strong> ! Ta présence
-                {guests === 2 ? " et celle de ton accompagnant" : guests > 2 ? ` et celle de tes ${guests - 1} accompagnants` : ""} est notée avec bonheur. 🌸
+                {guests === 2 ? " et celle de ton accompagnant" : guests === 3 ? " et celle de tes 2 accompagnants" : ""} est notée avec bonheur. 🌸
               </p>
             </div>
             <div className="rounded-xl p-3 text-xs text-center"

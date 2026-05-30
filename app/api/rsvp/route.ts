@@ -32,6 +32,11 @@ export async function POST(req: NextRequest) {
     await ensureTable();
     const sql = getDb();
 
+    const guestCount = parseInt(guests) || 1;
+    if (guestCount < 1 || guestCount > 3) {
+      return NextResponse.json({ error: "Maximum 3 personnes" }, { status: 400 });
+    }
+
     const cleanGuests = Array.isArray(guestNames)
       ? guestNames.filter((n: string) => typeof n === "string" && n.trim()).map((n: string) => n.trim())
       : [];
@@ -40,7 +45,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO rsvps (name, guests, guest_names, coming, message)
       VALUES (
         ${name.trim()},
-        ${parseInt(guests) || 1},
+        ${guestCount},
         ${cleanGuests.length > 0 ? JSON.stringify(cleanGuests) : null},
         ${!!coming},
         ${message?.trim() || null}
