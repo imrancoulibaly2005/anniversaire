@@ -273,73 +273,49 @@ export default function AdminPage() {
 
           /* Carte message */
           .pm-card {
-            background: rgba(255,255,255,0.82);
-            border-radius: 16px;
-            padding: 22px 20px 15px 22px;
+            background: #fffbfc;
+            border: 1.5px solid #fecdd3;
+            border-radius: 12px;
+            padding: 16px 18px 14px;
             position: relative;
             break-inside: avoid;
-            box-shadow:
-              0 4px 24px rgba(244, 63, 94, 0.10),
-              0 1px 4px rgba(0,0,0,0.04),
-              inset 0 0 0 1px rgba(255,255,255,0.9);
           }
 
-          /* Bande colorée haut de carte */
-          .pm-card-accent {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            border-radius: 16px 16px 0 0;
-            background: linear-gradient(to right, #f43f5e, #fda4af, #f43f5e);
-          }
-
-          /* Grand guillemet */
+          /* Guillemet décoratif */
           .pm-card::before {
             content: “””;
-            font-size: 80px;
-            color: rgba(253,164,175,0.35);
+            font-size: 56px;
+            color: #fda4af;
             position: absolute;
-            top: -4px;
-            left: 10px;
+            top: -12px;
+            left: 12px;
             font-family: Georgia, serif;
             line-height: 1;
           }
 
-          /* Cœur déco bas droite */
-          .pm-card::after {
-            content: “♥”;
-            font-size: 9px;
-            color: rgba(244,63,94,0.3);
-            position: absolute;
-            bottom: 14px;
-            right: 16px;
-          }
-
           .pm-card .pm-msg {
-            font-size: 11px;
-            color: #4b5563;
+            font-size: 11.5px;
+            color: #374151;
             font-style: italic;
-            line-height: 1.8;
-            margin-top: 26px;
-            padding-right: 4px;
+            line-height: 1.75;
+            margin-top: 14px;
+            padding-top: 2px;
           }
 
           .pm-card .pm-divider {
-            margin: 11px 0 9px;
+            margin: 10px 0 8px;
             height: 1px;
-            background: linear-gradient(to right, #f43f5e, #fecdd3, transparent);
+            background: linear-gradient(to right, #fecdd3, #f9a8d4, transparent);
           }
 
           .pm-card .pm-name {
-            font-size: 9.5px;
+            font-size: 10px;
             font-family: Arial, sans-serif;
             font-style: normal;
             font-weight: bold;
-            color: #be123c;
+            color: #e11d48;
             text-align: right;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding-right: 18px;
+            letter-spacing: 0.5px;
           }
           .pm-card .pm-name::before { content: “— “; }
         }
@@ -645,7 +621,6 @@ export default function AdminPage() {
                     <div id="pm-body">
                       {withMessages.map((r) => (
                         <div key={r.id} className="pm-card">
-                          <div className="pm-card-accent" />
                           <div className="pm-msg">{r.message}</div>
                           <div className="pm-divider" />
                           <div className="pm-name">{r.name}</div>
