@@ -54,11 +54,14 @@ export default function AdminPage() {
         @page { size: A4 portrait; margin: 0; }
 
         @media print {
+          html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
           body * { visibility: hidden !important; }
           #print-zone, #print-zone * { visibility: visible !important; }
           #print-zone {
-            position: fixed;
-            inset: 0;
+            position: absolute;
+            top: 0; left: 0;
+            width: 210mm;
+            height: 297mm;
             background: white;
             font-family: Georgia, serif;
             display: flex;
@@ -179,8 +182,10 @@ export default function AdminPage() {
           #print-messages-zone, #print-messages-zone * { visibility: visible !important; }
 
           #print-messages-zone {
-            position: fixed;
-            inset: 0;
+            position: absolute;
+            top: 0; left: 0;
+            width: 210mm;
+            height: 297mm;
             background: linear-gradient(135deg, #fff0f5 0%, #fce7f3 45%, #fdf2f8 100%);
             font-family: Georgia, serif;
           }
