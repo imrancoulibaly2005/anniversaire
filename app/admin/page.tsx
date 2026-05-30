@@ -241,7 +241,7 @@ export default function AdminPage() {
             break-inside: avoid;
           }
           .pm-card::before {
-            content: "\201C";
+            content: "“";
             font-size: 52px;
             color: #fda4af;
             position: absolute;
