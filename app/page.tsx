@@ -40,6 +40,7 @@ export default function Home() {
 
   async function handleSubmit(coming: boolean) {
     if (!names[0]?.trim()) { setError("Merci d'indiquer ton prénom 🌸"); return; }
+    if (!message?.trim()) { setError("Laisse un petit mot, ça fait plaisir 💕"); return; }
     setError("");
     setLoading(true);
     try {
@@ -233,7 +234,7 @@ export default function Home() {
               {/* Message */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-                  Un mot ✨ (optionnel)
+                  Un mot ✨ *
                 </label>
                 <textarea
                   value={message}
