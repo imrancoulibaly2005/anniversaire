@@ -179,105 +179,116 @@ export default function AdminPage() {
           #print-messages-zone {
             position: fixed;
             inset: 0;
-            background: white;
+            background: #fffbfc;
             font-family: Georgia, serif;
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
           }
-          #pm-header {
-            background: linear-gradient(135deg, #881337, #e11d48, #f43f5e);
-            color: white;
-            padding: 32px 48px 24px;
-            text-align: center;
-            position: relative;
-          }
-          #pm-header .pm-icon { font-size: 32px; margin-bottom: 8px; display: block; }
-          #pm-header h1 {
-            font-size: 30px;
+
+          /* Filigrane central */
+          #pm-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-18deg);
+            font-size: 88px;
             font-style: italic;
+            color: rgba(253, 164, 175, 0.07);
+            white-space: nowrap;
+            pointer-events: none;
+            font-family: Georgia, serif;
+            letter-spacing: 6px;
             font-weight: bold;
-            margin: 0 0 6px;
-            letter-spacing: 1.5px;
           }
-          #pm-header .pm-sub {
-            font-size: 11px;
-            opacity: 0.8;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-family: Arial, sans-serif;
-            font-style: normal;
+
+          /* Liseré décoratif sur les 4 bords */
+          #pm-border-top, #pm-border-bottom {
+            position: absolute;
+            left: 32px;
+            right: 32px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #fda4af, #f43f5e, #fda4af, transparent);
           }
-          #pm-header .pm-ligne {
-            margin: 12px auto 0;
-            width: 60px;
-            height: 1px;
-            background: rgba(255,255,255,0.5);
+          #pm-border-top { top: 28px; }
+          #pm-border-bottom { bottom: 28px; }
+          #pm-border-left, #pm-border-right {
+            position: absolute;
+            top: 32px;
+            bottom: 32px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #fda4af, #f43f5e, #fda4af, transparent);
           }
-          #pm-info {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            padding: 12px 40px;
-            background: #fff0f5;
-            border-bottom: 2px solid #fecdd3;
-            font-family: Arial, sans-serif;
-          }
-          #pm-info span { font-size: 11px; color: #881337; font-weight: bold; }
+          #pm-border-left { left: 28px; }
+          #pm-border-right { right: 28px; }
+
+          /* Grille des cartes */
           #pm-body {
-            flex: 1;
-            padding: 28px 48px;
+            position: absolute;
+            inset: 52px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 22px;
             align-content: start;
           }
+
+          /* Carte message */
           .pm-card {
-            border: 1.5px solid #fecdd3;
-            border-radius: 12px;
-            padding: 16px 18px;
-            background: #fffbfc;
+            background: white;
+            border-radius: 14px;
+            padding: 20px 20px 16px;
             position: relative;
             break-inside: avoid;
+            box-shadow: 0 2px 12px rgba(244, 63, 94, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+            border-left: 3px solid #f43f5e;
           }
+
+          /* Grand guillemet déco */
           .pm-card::before {
-            content: "“";
-            font-size: 52px;
-            color: #fda4af;
+            content: “””;
+            font-size: 68px;
+            color: #fecdd3;
             position: absolute;
-            top: -10px;
-            left: 12px;
+            top: -6px;
+            left: 14px;
             font-family: Georgia, serif;
             line-height: 1;
           }
+
+          /* Petit cœur en haut à droite */
+          .pm-card::after {
+            content: “♥”;
+            font-size: 10px;
+            color: #fda4af;
+            position: absolute;
+            top: 12px;
+            right: 14px;
+          }
+
           .pm-card .pm-msg {
             font-size: 11.5px;
             color: #374151;
             font-style: italic;
-            line-height: 1.7;
-            margin-top: 10px;
-            padding-top: 4px;
+            line-height: 1.75;
+            margin-top: 22px;
+            padding-right: 8px;
           }
+
+          .pm-card .pm-divider {
+            margin: 12px 0 8px;
+            height: 1px;
+            background: linear-gradient(to right, #fecdd3, transparent);
+          }
+
           .pm-card .pm-name {
-            margin-top: 10px;
             font-size: 10px;
             font-family: Arial, sans-serif;
             font-style: normal;
             font-weight: bold;
             color: #e11d48;
             text-align: right;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
           }
-          .pm-card .pm-name::before { content: "— "; }
-          #pm-footer {
-            text-align: center;
-            padding: 12px 40px;
-            background: #fff0f5;
-            border-top: 1px solid #fecdd3;
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            color: #9ca3af;
-          }
+          .pm-card .pm-name::before { content: “— “; }
         }
       `}</style>
 
@@ -509,10 +520,21 @@ export default function AdminPage() {
                 <>
                   {/* Zone impression messages — cachée à l'écran */}
                   <div id="print-messages-zone" style={{ display: "none" }}>
-                    {/* Déco haut droite */}
-                    <svg style={{ position: "absolute", top: 0, right: 0, width: 260, height: 260, opacity: 0.13, pointerEvents: "none" }} viewBox="0 0 320 320" fill="none">
+
+                    {/* Liseré 4 côtés */}
+                    <div id="pm-border-top" />
+                    <div id="pm-border-bottom" />
+                    <div id="pm-border-left" />
+                    <div id="pm-border-right" />
+
+                    {/* Filigrane */}
+                    <div id="pm-watermark">Mots d&apos;amour</div>
+
+                    {/* Branche haut droite */}
+                    <svg style={{ position: "absolute", top: 0, right: 0, width: 280, height: 280, opacity: 0.12, pointerEvents: "none" }} viewBox="0 0 320 320" fill="none">
                       <path d="M320 0 C280 40, 240 60, 200 90 C170 115, 150 140, 120 160 C95 178, 70 185, 50 200" stroke="#7c3435" strokeWidth="5" strokeLinecap="round"/>
                       <path d="M200 90 C220 70, 250 55, 270 30" stroke="#7c3435" strokeWidth="3.5" strokeLinecap="round"/>
+                      <path d="M200 90 C185 75, 195 55, 210 40" stroke="#7c3435" strokeWidth="2.5" strokeLinecap="round"/>
                       <path d="M150 140 C130 125, 125 105, 140 85" stroke="#7c3435" strokeWidth="3" strokeLinecap="round"/>
                       {[[270,28],[252,48],[210,38],[195,55],[172,52],[148,83],[138,64],[200,88],[220,68]].map(([cx,cy],i) => (
                         <g key={i}>
@@ -523,8 +545,9 @@ export default function AdminPage() {
                         </g>
                       ))}
                     </svg>
-                    {/* Déco bas gauche */}
-                    <svg style={{ position: "absolute", bottom: 0, left: 0, width: 230, height: 230, opacity: 0.13, pointerEvents: "none", transform: "rotate(180deg)" }} viewBox="0 0 280 280" fill="none">
+
+                    {/* Branche bas gauche */}
+                    <svg style={{ position: "absolute", bottom: 0, left: 0, width: 250, height: 250, opacity: 0.12, pointerEvents: "none", transform: "rotate(180deg)" }} viewBox="0 0 280 280" fill="none">
                       <path d="M280 280 C240 240, 200 220, 160 190 C130 168, 110 145, 80 125 C55 108, 30 100, 10 80" stroke="#7c3435" strokeWidth="5" strokeLinecap="round"/>
                       <path d="M160 190 C180 210, 210 225, 230 250" stroke="#7c3435" strokeWidth="3.5" strokeLinecap="round"/>
                       <path d="M110 145 C90 160, 85 180, 100 200" stroke="#7c3435" strokeWidth="3" strokeLinecap="round"/>
@@ -538,27 +561,15 @@ export default function AdminPage() {
                       ))}
                     </svg>
 
-                    <div id="pm-header">
-                      <span className="pm-icon">💌</span>
-                      <h1>Mots d&apos;amour</h1>
-                      <div className="pm-sub">Les messages du cœur — Anniversaire 2026</div>
-                      <div className="pm-ligne" />
-                    </div>
-                    <div id="pm-info">
-                      <span>📅 Samedi 6 juin 2026</span>
-                      <span>📍 Salle polyvalente de l&apos;Armée de l&apos;Air</span>
-                      <span>💌 {withMessages.length} message{withMessages.length > 1 ? "s" : ""}</span>
-                    </div>
+                    {/* Cartes */}
                     <div id="pm-body">
                       {withMessages.map((r) => (
                         <div key={r.id} className="pm-card">
                           <div className="pm-msg">{r.message}</div>
+                          <div className="pm-divider" />
                           <div className="pm-name">{r.name}</div>
                         </div>
                       ))}
-                    </div>
-                    <div id="pm-footer">
-                      Généré le {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} &nbsp;·&nbsp; Avec amour 🌸
                     </div>
                   </div>
 
