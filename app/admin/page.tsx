@@ -281,16 +281,13 @@ export default function AdminPage() {
             break-inside: avoid;
           }
 
-          /* Guillemet décoratif */
-          .pm-card::before {
-            content: “””;
-            font-size: 56px;
+          .pm-card .pm-quote {
+            font-size: 60px;
             color: #fda4af;
-            position: absolute;
-            top: -12px;
-            left: 12px;
             font-family: Georgia, serif;
-            line-height: 1;
+            line-height: 0.6;
+            margin-bottom: 6px;
+            display: block;
           }
 
           .pm-card .pm-msg {
@@ -298,8 +295,6 @@ export default function AdminPage() {
             color: #374151;
             font-style: italic;
             line-height: 1.75;
-            margin-top: 14px;
-            padding-top: 2px;
           }
 
           .pm-card .pm-divider {
@@ -621,6 +616,7 @@ export default function AdminPage() {
                     <div id="pm-body">
                       {withMessages.map((r) => (
                         <div key={r.id} className="pm-card">
+                          <span className="pm-quote">&ldquo;</span>
                           <div className="pm-msg">{r.message}</div>
                           <div className="pm-divider" />
                           <div className="pm-name">{r.name}</div>
