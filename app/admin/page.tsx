@@ -51,6 +51,8 @@ export default function AdminPage() {
   return (
     <>
       <style>{`
+        @page { size: A4 portrait; margin: 0; }
+
         @media print {
           body * { visibility: hidden !important; }
           #print-zone, #print-zone * { visibility: visible !important; }
@@ -61,7 +63,6 @@ export default function AdminPage() {
             font-family: Georgia, serif;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
           }
 
           /* Bandeau haut */
@@ -182,7 +183,6 @@ export default function AdminPage() {
             inset: 0;
             background: linear-gradient(135deg, #fff0f5 0%, #fce7f3 45%, #fdf2f8 100%);
             font-family: Georgia, serif;
-            overflow: hidden;
           }
 
           /* Double cadre décoratif */
@@ -317,10 +317,10 @@ export default function AdminPage() {
       `}</style>
 
       <main
-        className="min-h-screen p-4"
+        className="min-h-screen p-3 sm:p-4"
         style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)" }}
       >
-        <div className="max-w-lg mx-auto space-y-4">
+        <div className="max-w-lg mx-auto space-y-3 sm:space-y-4">
 
           {/* Header */}
           <div className="text-center pt-3">
@@ -368,23 +368,25 @@ export default function AdminPage() {
           {rsvps && (
             <>
               {/* Onglets */}
-              <div className="flex gap-2">
+              <div className="flex gap-1.5 sm:gap-2">
                 {([
-                  { id: "dashboard", label: `📊 Bord` },
-                  { id: "liste",     label: `📋 Liste (${allNames.length})` },
-                  { id: "messages",  label: `💌 Messages (${withMessages.length})` },
-                ] as { id: View; label: string }[]).map((v) => (
+                  { id: "dashboard", label: `📊`, labelFull: `📊 Tableau` },
+                  { id: "liste",     label: `📋 ${allNames.length}`, labelFull: `📋 Liste (${allNames.length})` },
+                  { id: "messages",  label: `💌 ${withMessages.length}`, labelFull: `💌 Messages (${withMessages.length})` },
+                ] as { id: View; label: string; labelFull: string }[]).map((v) => (
                   <button
                     key={v.id}
                     onClick={() => setView(v.id)}
-                    className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+                    className="flex-1 py-2.5 rounded-xl font-bold transition-all"
                     style={{
+                      fontSize: "clamp(10px, 2.5vw, 13px)",
                       background: view === v.id ? "linear-gradient(135deg, #f43f5e, #e11d48)" : "rgba(255,255,255,0.8)",
                       color: view === v.id ? "#fff" : "#9ca3af",
                       border: view === v.id ? "2px solid transparent" : "2px solid #e5e7eb",
                     }}
                   >
-                    {v.label}
+                    <span className="sm:hidden">{v.label}</span>
+                    <span className="hidden sm:inline">{v.labelFull}</span>
                   </button>
                 ))}
               </div>

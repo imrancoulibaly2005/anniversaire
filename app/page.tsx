@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen relative overflow-hidden flex items-center justify-center p-3"
+      className="min-h-screen relative overflow-hidden flex items-center justify-center px-3 py-8 sm:py-4"
       style={{ background: "linear-gradient(135deg, #fff0f5 0%, #fce7f3 40%, #fdf2f8 100%)" }}
     >
       {/* Branche cerisier haut droite */}
@@ -141,7 +141,7 @@ export default function Home() {
           borderRadius: "24px",
           boxShadow: "0 20px 50px rgba(244,63,94,0.14), 0 6px 20px rgba(0,0,0,0.05)",
           border: "1px solid rgba(255,255,255,0.9)",
-          padding: "1.5rem 1.25rem",
+          padding: "clamp(1rem, 4vw, 1.5rem) clamp(0.875rem, 3vw, 1.25rem)",
         }}
       >
         {step === "form" && (
@@ -254,11 +254,11 @@ export default function Home() {
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-2 pt-1">
+            <div className="flex flex-col xs:flex-row gap-2 pt-1">
               <button
                 onClick={() => handleSubmit(true)}
                 disabled={loading}
-                className="flex-1 py-3 rounded-2xl font-bold text-white text-sm transition-all active:scale-95 disabled:opacity-60"
+                className="flex-1 py-3 rounded-2xl font-bold text-white text-sm transition-all active:scale-95 disabled:opacity-60 whitespace-nowrap"
                 style={{ background: "linear-gradient(135deg, #f43f5e, #e11d48)", boxShadow: "0 6px 20px rgba(244,63,94,0.35)" }}
               >
                 {loading ? "..." : "🥂 Je serai là !"}
@@ -266,7 +266,7 @@ export default function Home() {
               <button
                 onClick={() => handleSubmit(false)}
                 disabled={loading}
-                className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 disabled:opacity-60"
+                className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 disabled:opacity-60 whitespace-nowrap"
                 style={{ background: "#fff", color: "#9ca3af", border: "2px solid #e5e7eb" }}
               >
                 {loading ? "..." : "😔 Je ne peux pas"}
