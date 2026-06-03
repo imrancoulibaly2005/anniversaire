@@ -14,12 +14,16 @@ type RSVP = {
 
 type View = "dashboard" | "liste" | "messages";
 
+type DeleteModal = { step: 1 | 2; rsvp: RSVP; confirm: string } | null;
+
 export default function AdminPage() {
   const [key, setKey] = useState("");
   const [rsvps, setRsvps] = useState<RSVP[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [view, setView] = useState<View>("dashboard");
+  const [deleteModal, setDeleteModal] = useState<DeleteModal>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -34,6 +38,26 @@ export default function AdminPage() {
       setError("Erreur de chargement");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteModal) return;
+    if (deleteModal.confirm !== "SUPPRIMER") return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/rsvp", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deleteModal.rsvp.id, adminKey: key }),
+      });
+      if (!res.ok) throw new Error();
+      setRsvps((prev) => prev ? prev.filter((r) => r.id !== deleteModal.rsvp.id) : prev);
+      setDeleteModal(null);
+    } catch {
+      alert("Erreur lors de la suppression.");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -321,6 +345,87 @@ export default function AdminPage() {
         }
       `}</style>
 
+      {/* Modal suppression */}
+      {deleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}>
+          <div className="w-full max-w-sm rounded-2xl p-6 space-y-4"
+            style={{ background: "white", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+
+            {deleteModal.step === 1 && (
+              <>
+                <div className="text-center">
+                  <div className="text-4xl mb-3">⚠️</div>
+                  <h3 className="font-bold text-lg text-gray-800 mb-1">Supprimer cette entrée ?</h3>
+                  <p className="text-sm text-gray-500">Tu es sur le point de supprimer :</p>
+                  <div className="mt-3 rounded-xl p-3 text-sm font-semibold"
+                    style={{ background: "#fff0f5", border: "1px solid #fecdd3", color: "#881337" }}>
+                    {deleteModal.rsvp.name}
+                    {deleteModal.rsvp.guest_names && deleteModal.rsvp.guest_names.length > 0 && (
+                      <div className="font-normal text-xs text-gray-500 mt-1">
+                        + {deleteModal.rsvp.guest_names.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">Cette action est irréversible.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setDeleteModal(null)}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-bold text-gray-500"
+                    style={{ background: "#f3f4f6", border: "2px solid #e5e7eb" }}>
+                    Annuler
+                  </button>
+                  <button onClick={() => setDeleteModal({ ...deleteModal, step: 2 })}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white"
+                    style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)" }}>
+                    Continuer →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {deleteModal.step === 2 && (
+              <>
+                <div className="text-center">
+                  <div className="text-4xl mb-3">🔐</div>
+                  <h3 className="font-bold text-lg text-gray-800 mb-1">Confirmation finale</h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Tape <strong className="text-red-600">SUPPRIMER</strong> pour confirmer
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteModal.confirm}
+                    onChange={(e) => setDeleteModal({ ...deleteModal, confirm: e.target.value })}
+                    placeholder="SUPPRIMER"
+                    className="w-full px-4 py-3 rounded-xl text-center font-bold text-sm outline-none"
+                    style={{
+                      border: deleteModal.confirm === "SUPPRIMER" ? "2px solid #ef4444" : "2px solid #e5e7eb",
+                      color: deleteModal.confirm === "SUPPRIMER" ? "#dc2626" : "#374151",
+                    }}
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setDeleteModal(null)}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-bold text-gray-500"
+                    style={{ background: "#f3f4f6", border: "2px solid #e5e7eb" }}>
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleteModal.confirm !== "SUPPRIMER" || deleting}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40"
+                    style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)" }}>
+                    {deleting ? "..." : "🗑️ Supprimer"}
+                  </button>
+                </div>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
+
       <main
         className="min-h-screen p-3 sm:p-4"
         style={{ background: "linear-gradient(135deg, #fff0f5, #fce7f3)" }}
@@ -419,12 +524,12 @@ export default function AdminPage() {
                   </div>
 
                   <Section title="🥂 Ils seront là" count={coming.length} color="#e11d48">
-                    {coming.map((r) => <RsvpCard key={r.id} r={r} />)}
+                    {coming.map((r) => <RsvpCard key={r.id} r={r} onDelete={() => setDeleteModal({ step: 1, rsvp: r, confirm: "" })} />)}
                     {coming.length === 0 && <EmptyState text="Aucune réponse positive pour l'instant" />}
                   </Section>
 
                   <Section title="😔 Absents" count={notComing.length} color="#6b7280">
-                    {notComing.map((r) => <RsvpCard key={r.id} r={r} />)}
+                    {notComing.map((r) => <RsvpCard key={r.id} r={r} onDelete={() => setDeleteModal({ step: 1, rsvp: r, confirm: "" })} />)}
                     {notComing.length === 0 && <EmptyState text="Personne n'a décliné pour l'instant" />}
                   </Section>
                 </>
@@ -736,11 +841,11 @@ function Section({ title, count, color, children }: {
   );
 }
 
-function RsvpCard({ r }: { r: RSVP }) {
+function RsvpCard({ r, onDelete }: { r: RSVP; onDelete: () => void }) {
   return (
     <div className="px-4 py-3">
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-semibold text-gray-800 text-sm">{r.name}</p>
           {r.guest_names && r.guest_names.length > 0 && (
             <div className="mt-0.5 space-y-0.5">
@@ -755,13 +860,21 @@ function RsvpCard({ r }: { r: RSVP }) {
             <p className="text-xs text-gray-400 mt-1 italic leading-relaxed">&ldquo;{r.message}&rdquo;</p>
           )}
         </div>
-        <div className="text-right shrink-0">
+        <div className="text-right shrink-0 flex flex-col items-end gap-1">
           <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ background: "#fce7f3", color: "#e11d48" }}>
             {r.guests} pers.
           </span>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-400">
             {new Date(r.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
           </p>
+          <button
+            onClick={onDelete}
+            className="mt-1 text-xs px-2 py-1 rounded-lg font-bold transition-all active:scale-95"
+            style={{ background: "#fee2e2", color: "#ef4444", border: "1px solid #fecaca" }}
+            title="Supprimer"
+          >
+            🗑️
+          </button>
         </div>
       </div>
     </div>

@@ -59,6 +59,25 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id, adminKey } = await req.json();
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+    if (!id) {
+      return NextResponse.json({ error: "ID requis" }, { status: 400 });
+    }
+    await ensureTable();
+    const sql = getDb();
+    await sql`DELETE FROM rsvps WHERE id = ${parseInt(id)}`;
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   const adminKey = req.nextUrl.searchParams.get("key");
   if (adminKey !== process.env.ADMIN_KEY) {
