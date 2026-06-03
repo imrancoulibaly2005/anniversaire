@@ -9,7 +9,10 @@
 }
 
 html {
-  scrollbar-gutter: stable;
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 body {
