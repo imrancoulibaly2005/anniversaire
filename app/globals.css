@@ -8,9 +8,9 @@
   box-sizing: border-box;
 }
 
-html {
-  scrollbar-gutter: stable;
-  overflow-y: scroll;
+html, body {
+  overflow-x: hidden;
+  scrollbar-gutter: stable both-edges;
 }
 
 body {

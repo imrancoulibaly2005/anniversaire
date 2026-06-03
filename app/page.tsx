@@ -66,7 +66,8 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen relative overflow-x-hidden flex items-center justify-center px-3 py-8"
+      className="min-h-screen relative overflow-x-hidden flex items-center justify-center px-4 py-6"
+      style={{ scrollbarGutter: "stable" }}
       style={{ background: "linear-gradient(135deg, #fff0f5 0%, #fce7f3 40%, #fdf2f8 100%)" }}
     >
       {/* Branche cerisier haut droite */}
