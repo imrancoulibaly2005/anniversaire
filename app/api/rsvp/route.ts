@@ -59,6 +59,31 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    const { id, adminKey, guestNames, guests } = await req.json();
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+    if (!id) return NextResponse.json({ error: "ID requis" }, { status: 400 });
+
+    await ensureTable();
+    const sql = getDb();
+    const cleanGuests = Array.isArray(guestNames) ? guestNames.filter((n: string) => n?.trim()) : [];
+
+    await sql`
+      UPDATE rsvps SET
+        guest_names = ${cleanGuests.length > 0 ? JSON.stringify(cleanGuests) : null},
+        guests = ${parseInt(guests) || 1}
+      WHERE id = ${parseInt(id)}
+    `;
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const { id, adminKey } = await req.json();

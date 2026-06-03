@@ -14,7 +14,7 @@ type RSVP = {
 
 type View = "dashboard" | "liste" | "messages";
 
-type DeleteModal = { step: 1 | 2; rsvp: RSVP; confirm: string } | null;
+type DeleteModal = { step: 1 | 2; rsvp: RSVP; confirm: string; guestIndex?: number } | null;
 
 export default function AdminPage() {
   const [key, setKey] = useState("");
@@ -42,17 +42,39 @@ export default function AdminPage() {
   }
 
   async function handleDelete() {
-    if (!deleteModal) return;
-    if (deleteModal.confirm !== "SUPPRIMER") return;
+    if (!deleteModal || deleteModal.confirm !== "SUPPRIMER") return;
     setDeleting(true);
     try {
-      const res = await fetch("/api/rsvp", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: deleteModal.rsvp.id, adminKey: key }),
-      });
-      if (!res.ok) throw new Error();
-      setRsvps((prev) => prev ? prev.filter((r) => r.id !== deleteModal.rsvp.id) : prev);
+      const isGuestOnly = deleteModal.guestIndex !== undefined;
+
+      if (isGuestOnly) {
+        // Supprimer uniquement un +1
+        const newGuestNames = (deleteModal.rsvp.guest_names ?? []).filter((_, i) => i !== deleteModal.guestIndex);
+        const res = await fetch("/api/rsvp", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: deleteModal.rsvp.id,
+            adminKey: key,
+            guestNames: newGuestNames,
+            guests: 1 + newGuestNames.length,
+          }),
+        });
+        if (!res.ok) throw new Error();
+        setRsvps((prev) => prev ? prev.map((r) => r.id === deleteModal.rsvp.id
+          ? { ...r, guest_names: newGuestNames, guests: 1 + newGuestNames.length }
+          : r
+        ) : prev);
+      } else {
+        // Supprimer toute l'entrée
+        const res = await fetch("/api/rsvp", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: deleteModal.rsvp.id, adminKey: key }),
+        });
+        if (!res.ok) throw new Error();
+        setRsvps((prev) => prev ? prev.filter((r) => r.id !== deleteModal.rsvp.id) : prev);
+      }
       setDeleteModal(null);
     } catch {
       alert("Erreur lors de la suppression.");
@@ -356,17 +378,33 @@ export default function AdminPage() {
               <>
                 <div className="text-center">
                   <div className="text-4xl mb-3">⚠️</div>
-                  <h3 className="font-bold text-lg text-gray-800 mb-1">Supprimer cette entrée ?</h3>
-                  <p className="text-sm text-gray-500">Tu es sur le point de supprimer :</p>
-                  <div className="mt-3 rounded-xl p-3 text-sm font-semibold"
-                    style={{ background: "#fff0f5", border: "1px solid #fecdd3", color: "#881337" }}>
-                    {deleteModal.rsvp.name}
-                    {deleteModal.rsvp.guest_names && deleteModal.rsvp.guest_names.length > 0 && (
-                      <div className="font-normal text-xs text-gray-500 mt-1">
-                        + {deleteModal.rsvp.guest_names.join(", ")}
+                  {deleteModal.guestIndex !== undefined ? (
+                    <>
+                      <h3 className="font-bold text-lg text-gray-800 mb-1">Supprimer ce +1 ?</h3>
+                      <p className="text-sm text-gray-500">Tu es sur le point de retirer :</p>
+                      <div className="mt-3 rounded-xl p-3 text-sm font-semibold"
+                        style={{ background: "#fff0f5", border: "1px solid #fecdd3", color: "#881337" }}>
+                        {deleteModal.rsvp.guest_names?.[deleteModal.guestIndex]}
+                        <div className="font-normal text-xs text-gray-500 mt-1">
+                          accompagnant de {deleteModal.rsvp.name}
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="font-bold text-lg text-gray-800 mb-1">Supprimer cette entrée ?</h3>
+                      <p className="text-sm text-gray-500">Tu es sur le point de supprimer :</p>
+                      <div className="mt-3 rounded-xl p-3 text-sm font-semibold"
+                        style={{ background: "#fff0f5", border: "1px solid #fecdd3", color: "#881337" }}>
+                        {deleteModal.rsvp.name}
+                        {deleteModal.rsvp.guest_names && deleteModal.rsvp.guest_names.length > 0 && (
+                          <div className="font-normal text-xs text-gray-500 mt-1">
+                            + {deleteModal.rsvp.guest_names.join(", ")}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                   <p className="text-xs text-gray-400 mt-2">Cette action est irréversible.</p>
                 </div>
                 <div className="flex gap-2">
@@ -524,12 +562,12 @@ export default function AdminPage() {
                   </div>
 
                   <Section title="🥂 Ils seront là" count={coming.length} color="#e11d48">
-                    {coming.map((r) => <RsvpCard key={r.id} r={r} onDelete={() => setDeleteModal({ step: 1, rsvp: r, confirm: "" })} />)}
+                    {coming.map((r) => <RsvpCard key={r.id} r={r} onDelete={() => setDeleteModal({ step: 1, rsvp: r, confirm: "" })} onDeleteGuest={(i) => setDeleteModal({ step: 1, rsvp: r, confirm: "", guestIndex: i })} />)}
                     {coming.length === 0 && <EmptyState text="Aucune réponse positive pour l'instant" />}
                   </Section>
 
                   <Section title="😔 Absents" count={notComing.length} color="#6b7280">
-                    {notComing.map((r) => <RsvpCard key={r.id} r={r} onDelete={() => setDeleteModal({ step: 1, rsvp: r, confirm: "" })} />)}
+                    {notComing.map((r) => <RsvpCard key={r.id} r={r} onDelete={() => setDeleteModal({ step: 1, rsvp: r, confirm: "" })} onDeleteGuest={(i) => setDeleteModal({ step: 1, rsvp: r, confirm: "", guestIndex: i })} />)}
                     {notComing.length === 0 && <EmptyState text="Personne n'a décliné pour l'instant" />}
                   </Section>
                 </>
@@ -841,18 +879,28 @@ function Section({ title, count, color, children }: {
   );
 }
 
-function RsvpCard({ r, onDelete }: { r: RSVP; onDelete: () => void }) {
+function RsvpCard({ r, onDelete, onDeleteGuest }: { r: RSVP; onDelete: () => void; onDeleteGuest: (i: number) => void }) {
   return (
     <div className="px-4 py-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-gray-800 text-sm">{r.name}</p>
           {r.guest_names && r.guest_names.length > 0 && (
-            <div className="mt-0.5 space-y-0.5">
+            <div className="mt-1 space-y-1">
               {r.guest_names.map((gn, i) => (
-                <p key={i} className="text-xs text-gray-500 flex items-center gap-1">
-                  <span style={{ color: "#f9a8d4" }}>+</span>{gn}
-                </p>
+                <div key={i} className="flex items-center justify-between gap-1 group">
+                  <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <span style={{ color: "#f9a8d4" }}>+</span>{gn}
+                  </p>
+                  <button
+                    onClick={() => onDeleteGuest(i)}
+                    className="text-xs px-1.5 py-0.5 rounded-md font-bold transition-all opacity-50 hover:opacity-100"
+                    style={{ background: "#fee2e2", color: "#ef4444", border: "1px solid #fecaca" }}
+                    title={`Retirer ${gn}`}
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
             </div>
           )}
