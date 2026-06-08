@@ -133,6 +133,15 @@ export default function Home() {
         ⚙️
       </a>
 
+      {/* Bouton concours pizza */}
+      <a
+        href="/concours"
+        className="fixed bottom-4 left-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95"
+        style={{ background: "linear-gradient(135deg, #ff6b35, #ff1744)", boxShadow: "0 4px 15px rgba(255,107,53,0.5)" }}
+      >
+        🍕 Concours pizza
+      </a>
+
       <div
         className="relative z-10 w-full max-w-sm"
         style={{
